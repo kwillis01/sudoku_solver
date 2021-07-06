@@ -31,20 +31,22 @@ def find_next_empty_cell(row, col, board):
     else:
         return find_next_empty_cell(row, col + 1, board)
 
-#backtracking algorithm
-def find_valid_num(row_list, col_list, grid_list, board, row, col):
-    #find right sets using a dictionary
+def find_valid_nums(row_set, col_set, grid_set, row, col):
     universal_set = {0,1,2,3,4,5,6,7,8,9}
+    num_set = row_set.union(col_set)
+    num_set = num_set.union(grid_set)
+    available_nums = universal_set.difference(num_set)
+
+    return available_nums
+
+#backtracking algorithm
+def solve_board(row_list, col_list, grid_list, board, row, col):
     row_set = row_list[row]
     col_set = col_list[col]
     grid_set = grid_list[get_grid_number(row, col)]
 
-    #combine the sets to be used to get the available numbers
-    num_set = row_set.union(col_set)
-    num_set = num_set.union(grid_set)
-    available_nums = universal_set.difference(num_set)
-    print('row, col: ', row, ' ', col)
-    print('available nums: ', available_nums)
+    available_nums = find_valid_nums(row_set, col_set, grid_set, row, col)
+
     #puzzle is solved
     if row == -1:
         return True
@@ -55,12 +57,15 @@ def find_valid_num(row_list, col_list, grid_list, board, row, col):
     
     #test the different numbers
     for num in available_nums:
+        #print('available nums: ', available_nums)
+        #print('row, col: ', row, ' ', col)
+        #print('set to ', num)
         board[row][col] = num
         row_set.add(num)
         col_set.add(num)
         grid_set.add(num)
         next_row, next_col = find_next_empty_cell(row, col, board)
-        success = find_valid_num(row_list, col_list, grid_list, board, next_row, next_col)
+        success = solve_board(row_list, col_list, grid_list, board, next_row, next_col)
 
         if success is True:
             return True
@@ -83,8 +88,8 @@ for row in range(9):
         col_list[col].add(board[row][col])
         grid_list[get_grid_number(row, col)].add(board[row][col])
 
-
-print(find_valid_num(row_list, col_list, grid_list, board, 0, 0))
+row, col = find_next_empty_cell(0, 0, board)
+print(solve_board(row_list, col_list, grid_list, board, row, col))
 
 for i in board:
     print(i)
