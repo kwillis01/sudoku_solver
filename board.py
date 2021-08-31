@@ -1,6 +1,5 @@
 import csv
-import sys
-import os
+import random
 
 class Board:
     # constructor
@@ -10,7 +9,7 @@ class Board:
         self.__row_list = [set() for i in range(9)]
         self.__col_list = [set() for i in range(9)]
         self.__grid_list = [set() for i in range(9)]
-        self.solved = False
+        self.__solved = False
 
         # directs to right method depending on if the file is the puzzle in text form, csv, or the solution
         # solution direction
@@ -20,8 +19,14 @@ class Board:
         elif file.endswith('.csv'):
             self.__read_csv(file)
         # text direction
-        else:
+        elif file.endswith('.txt'):
             self.__read_txt(file)
+        elif file == "easy":
+            self.__create_rng_board(44)
+        elif file == "medium":
+            self.__create_rng_board(51)
+        else:
+            self.__create_rng_board(54)
 
         # makes the list of sets for the rows, columns, and grids
         for row in range(9):
@@ -29,6 +34,7 @@ class Board:
                 self.__row_list[row].add(self.board[row][col].get_cell_num())
                 self.__col_list[col].add(self.board[row][col].get_cell_num())
                 self.__grid_list[self.__get_grid_number(row, col)].add(self.board[row][col].get_cell_num())
+
 
     # read board from csv
     def __read_csv(self, file):
@@ -93,6 +99,55 @@ class Board:
                 # sets the given numbers as fixed
                 if self.board[i][j].get_cell_num() != 0:
                     self.board[i][j].set_fixed(True)
+    
+    def __create_rng_board(self, blank_spaces):
+        
+        self.__fill_diag_grids_with_rand_nums()
+        self.solve_board()
+        self.__fill_board_rng()
+        self.__clear_k_nums()
+
+    def __fill_diag_grids_with_rand_nums(self):
+        col = 0
+        grid = 0
+        elements_used = set()
+
+        for i in range(9):
+            for j in range(3):
+                rand_num = random.randint(1,9)
+
+                while rand_num in elements_used:
+                    rand_num = random.randint(1,9)
+                
+                elements_used.add(rand_num)
+                self.board[i][col + j].set_correct_num(rand_num)
+
+            if i % 3 == 2:
+                col += 3
+                grid += 4
+                elements_used.clear()
+    
+    def __fill_board_rng(self):
+        for i in range(9):
+            for j in range(9):
+                self.board[i][j].set_cell_num(self.board[i][j].get_correct_num())
+                self.board[i][j].set_fixed(True)
+
+    def __clear_k_nums(self, blank_spaces):
+        elements_cleared = set()
+
+        rand_row = random.randint(0,8)
+        rand_col = random.randint(0,8)
+
+        for i in range(blank_spaces):
+
+            while (rand_row, rand_col) in elements_cleared:
+                rand_row = random.randint(0,8)
+                rand_col = random.randint(0,8)
+
+            self.board[rand_row][rand_col].set_cell_num(0)
+            self.board[rand_row][rand_col].set_fixed(False)
+            elements_cleared.add((rand_row, rand_col))
 
     # gets grid number by using row and column
     def __get_grid_number(self, row, col):
@@ -173,10 +228,10 @@ class Board:
             print('Something went wrong!')
 
     def is_solved(self):
-        return self.solved
+        return self.__solved
 
     def set_solved(self, switch):
-        self.solved = switch
+        self.__solved = switch
 
     # returns the board in the form of a 2D list
     def get_integer_board(self):
@@ -223,7 +278,7 @@ class Cell:
         self.cell_num = 0           # number currently in the cell
         self.possible_nums = set()  # the numbers the user inputs using the note taking mode
         self.fixed = False          # if the number in the cell was given at the start of the game
-        self.selected = False       # if the cell is currently selected
+        self.selected = False       # if the cell is currently selected       
 
     def set_correct_num(self, num):
         self.correct_num = num
@@ -247,9 +302,7 @@ class Cell:
         return self.possible_nums
 
     def set_cell_num(self, num):
-        # if the cell is not given at the start of the game the user can change it
-        if not self.fixed:
-            self.cell_num = num
+        self.cell_num = num
     
     def get_cell_num(self):
         return self.cell_num

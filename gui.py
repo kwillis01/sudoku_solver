@@ -55,8 +55,6 @@ def draw_captions():
     screen.blit(text, textRect)
 
 
-
-
 def draw_cell_numbers(solved):
     # go through each cell to determine what to draw
     for i in range(9):
@@ -143,7 +141,7 @@ def insert_note_taking_num(row, col, num):
         draw_note_taking_num(row, col, num)
 
 # make the game
-game = Board('C:/Users/kenda/OneDrive - University of Florida/Python Projects/sudoku_solver/sudoku solver/sudoku/s01a.txt')
+game = Board('easy')
 board = game.get_board()
 
 # variables for the game
