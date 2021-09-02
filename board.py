@@ -105,7 +105,7 @@ class Board:
         self.__fill_diag_grids_with_rand_nums()
         self.solve_board()
         self.__fill_board_rng()
-        self.__clear_k_nums()
+        self.__clear_k_nums(blank_spaces)
 
     def __fill_diag_grids_with_rand_nums(self):
         col = 0
@@ -154,9 +154,11 @@ class Board:
         return ((col // 3) + (row // 3 * 3))
 
     # recursive approach to finding next empty cell and returns a tuple that is the row and column
-    def __find_next_empty_cell(self, row, col):
+    def find_next_empty_cell(self, row, col, correct):
         #base case
-        if self.board[row][col].get_correct_num() == 0:
+        if correct and self.board[row][col].get_correct_num() == 0:
+            return (row, col)
+        elif (not correct) and (self.board[row][col].get_cell_num() == 0):
             return (row, col)
         
         #at end of board which means there should be no more empty cells
@@ -164,10 +166,10 @@ class Board:
             return (-1,-1)
         #at end of any row
         elif col == 8:
-            return self.__find_next_empty_cell(row + 1, 0)
+            return self.find_next_empty_cell(row + 1, 0, correct)
         #go check next cell in row
         else:
-            return self.__find_next_empty_cell(row, col + 1)
+            return self.find_next_empty_cell(row, col + 1, correct)
 
     # finds the set of valid numbers using the difference between the universal set and the row, column, and grid set
     def __find_valid_nums(self, row_set, col_set, grid_set):
@@ -203,7 +205,7 @@ class Board:
             row_set.add(num)
             col_set.add(num)
             grid_set.add(num)
-            next_row, next_col = self.__find_next_empty_cell(row, col)
+            next_row, next_col = self.find_next_empty_cell(row, col, True)
 
             # recursive step
             success = self.__backtracking(next_row, next_col)
@@ -223,7 +225,7 @@ class Board:
 
     # solves the board
     def solve_board(self):
-        row, col = self.__find_next_empty_cell(0, 0)
+        row, col = self.find_next_empty_cell(0, 0, True)
         if not(self.__backtracking(row, col)):
             print('Something went wrong!')
 
@@ -234,13 +236,13 @@ class Board:
         self.__solved = switch
 
     # returns the board in the form of a 2D list
-    def get_integer_board(self):
-        temp = [[0]*9]*9
-
+    def is_won(self):
         for i in range(9):
             for j in range(9):
-                temp[i][j] = self.board[i][j].get_cell_num()
-        return temp
+                if self.board[i][j].get_cell_num() != self.board[i][j].get_correct_num():
+                    return False
+
+        return True
 
     # returns the board
     def get_board(self):

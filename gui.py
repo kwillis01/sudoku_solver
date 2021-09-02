@@ -224,6 +224,16 @@ while True:
                     board[row][col].set_cell_num(0)
                     draw_board(False)
 
+                if game.find_next_empty_cell(0,0,False) == (-1,-1):
+                    if game.is_won():
+                        screen.fill((0, 100, 0))
+                    else:
+                        caption_font = pygame.font.SysFont('Calibri', 28, True, False)
+                        text = caption_font.render('Something is wrong, try again', True, (0, 0, 0), (255, 255, 255))
+                        textRect = text.get_rect()
+                        textRect.center = (300, 510)
+                        screen.blit(text, textRect)
+
             # note taking mode
             elif (board[row][col].get_cell_num() == 0) and (game.is_solved() is False):
 
