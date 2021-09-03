@@ -5,9 +5,65 @@ from pygame.locals import *
 
 pygame.init()
 
+def draw_starting_page():
+    title_font = pygame.font.SysFont('Calibri', 56, False, False)
+
+    title = title_font.render('Sudoku', True, (0, 0, 0), (255, 255, 255))
+    title_rect = title.get_rect()
+    title_rect.center = (width // 2, height // 4)
+    screen.blit(title, title_rect)
+
+    easy_button = pygame.draw.rect(screen, (105, 105, 105), (225, height // 4 * 2, 200, 50), 0)
+    medium_button = pygame.draw.rect(screen, (105, 105, 105), (225, (height // 4 * 2) + 75, 200, 50), 0)
+    hard_button = pygame.draw.rect(screen, (105, 105, 105), (225, (height // 4 * 2) + 150, 200, 50), 0)
+
+    button_font = pygame.font.SysFont('Calibri', 36, False, False)
+    easy = button_font.render('Easy', True, (255, 255, 255), (105, 105, 105))
+    easy_rect = easy.get_rect()
+    easy_rect.center = (width // 2, (height // 4 * 2) + 25)
+    screen.blit(easy, easy_rect)
+
+    medium = button_font.render('Medium', True, (255, 255, 255), (105, 105, 105))
+    medium_rect = medium.get_rect()
+    medium_rect.center = (width // 2, (height // 4 * 2) + 100)
+    screen.blit(medium, medium_rect)
+
+    hard = button_font.render('Hard', True, (255, 255, 255), (105, 105, 105))
+    hard_rect = hard.get_rect()
+    hard_rect.center = (width // 2, (height // 4 * 2) + 175)
+    screen.blit(hard, hard_rect)
+
+    title_font = pygame.font.SysFont('Calibri', 24, True, False)
+    hard = button_font.render('Controls', True, (0, 0, 0), (255, 255, 255))
+    hard_rect = hard.get_rect()
+    hard_rect.center = (width // 2, (height // 4 * 2) + 300)
+    screen.blit(hard, hard_rect)
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+
+                if easy_button.collidepoint(pos[0], pos[1]):
+                    return Board("easy")
+                elif medium_button.collidepoint(pos[0], pos[1]):
+                    return Board("medium")
+                elif hard_button.collidepoint(pos[0], pos[1]):
+                    return Board("hard")
+
+        pygame.display.update()
+
+
+        
+
+    
+
 def draw_board(solved):
     draw_grid()
-    draw_note_taking_button()
+    draw_solved_button()
     draw_captions()
     draw_cell_numbers(solved)
 
@@ -25,25 +81,31 @@ def draw_grid():
         y += height // 9
 
         # draw the thick lines
+        pygame.draw.lines(screen, (0, 0, 0), False, [(0, 0), (0, height - 2)], 3)
+        pygame.draw.lines(screen, (0, 0, 0), False, [(0, 0), (width, 0)], 3)
         if i % 3 == 2:
-            pygame.draw.lines(screen, (0, 0, 0), False, [(x, 0), (x, height)], 3)
+            pygame.draw.lines(screen, (0, 0, 0), False, [(x, 0), (x, height - 2)], 3)
             pygame.draw.lines(screen, (0, 0, 0), False, [(0, y), (width, y)], 3)
         # draw the thin lines
         else:
-            pygame.draw.line(screen, (0, 0, 0), (x, 0), (x, height))
+            pygame.draw.line(screen, (0, 0, 0), (x, 0), (x, height - 2))
             pygame.draw.line(screen, (0, 0, 0), (0, y), (width, y))        
 
-def draw_note_taking_button():
+def draw_solved_button():
     # make the button different colors depending on if note_taking is enabled or not
-    if note_taking:
-        pygame.draw.rect(screen, (192, 192, 192), (100, 490, 35, 35), 0)
+    if game.is_solved:
+        solved_button = pygame.draw.rect(screen, (192, 192, 192), (100, 490, 35, 35), 0)
     else:
-        pygame.draw.rect(screen, (105, 105, 105), (100, 490, 35, 35), 0)
+        solved_button = pygame.draw.rect(screen, (105, 105, 105), (100, 490, 35, 35), 0)
+
+    return solved_button
+
+
 
 def draw_captions():
     # make directions telling user what the button is for
     caption_font = pygame.font.SysFont('Calibri', 28, False, False)
-    text = caption_font.render('Press Button for Note Taking Mode', True, (0, 0, 0), (255, 255, 255))
+    text = caption_font.render('Press Button for Solved Board', True, (0, 0, 0), (255, 255, 255))
     textRect = text.get_rect()
     textRect.center = (350, 510)
     screen.blit(text, textRect)
@@ -54,14 +116,30 @@ def draw_captions():
     textRect.center = (318, 540)
     screen.blit(text, textRect)
 
-
 def draw_cell_numbers(solved):
     # go through each cell to determine what to draw
     for i in range(9):
         for j in range(9):
             if board[i][j].is_fixed():
                 x, y = get_position_of_cell(i, j)
-                pygame.draw.rect(screen, (192, 192, 192), (x + 1, y + 1, (width // 9) - 1, (height //9) - 1), 0)
+                if i % 3 == 2 and j % 3 == 2:
+                    pygame.draw.rect(screen, (192, 192, 192), (x + 1, y + 1, (width // 9) - 2, (height //9) - 2), 0)
+                elif i % 3 == 0 and j % 3 == 2:
+                    pygame.draw.rect(screen, (192, 192, 192), (x + 1, y + 2, (width // 9) - 2, (height //9) - 2), 0)
+                elif i % 3 == 2 and j % 3 == 0:
+                    pygame.draw.rect(screen, (192, 192, 192), (x + 2, y + 1, (width // 9) - 2, (height //9) - 2), 0)
+                elif i % 3 == 0 and j % 3 == 0:
+                    pygame.draw.rect(screen, (192, 192, 192), (x + 2, y + 2, (width // 9) - 2, (height //9) - 2), 0)
+                elif i % 3 == 2:
+                    pygame.draw.rect(screen, (192, 192, 192), (x + 1, y + 1, (width // 9) - 1, (height //9) - 2), 0)
+                elif j % 3 == 2:
+                    pygame.draw.rect(screen, (192, 192, 192), (x + 1, y + 1, (width // 9) - 2, (height //9) - 1), 0)
+                elif i % 3 == 0:
+                    pygame.draw.rect(screen, (192, 192, 192), (x + 1, y + 2, (width // 9) - 1, (height //9) - 2), 0)
+                elif j % 3 == 0:
+                    pygame.draw.rect(screen, (192, 192, 192), (x + 2, y + 1, (width // 9) - 2, (height //9) - 1), 0)
+                else:
+                    pygame.draw.rect(screen, (192, 192, 192), (x + 1, y + 1, (width // 9) - 1, (height //9) - 1), 0)
                 draw_cell_num(i, j, board[i][j].get_correct_num(), (192, 192, 192))
             # if the cell is not empty
             elif solved:
@@ -140,10 +218,6 @@ def insert_note_taking_num(row, col, num):
         board[row][col].insert_possible_num(num)
         draw_note_taking_num(row, col, num)
 
-# make the game
-game = Board('easy')
-board = game.get_board()
-
 # variables for the game
 width = 640     # width of grid
 height = 480    # height of grid
@@ -152,9 +226,12 @@ screen.fill((255, 255, 255))
 font = pygame.font.SysFont('Calibri', 48, False, False)
 note_taking = False
 note_taking_button = pygame.Rect(100, 500, 35, 35)
+# make the game
 row = -1
 col = -1
 
+game = draw_starting_page()
+board = game.get_board()
 draw_board(False)
 
 while True:
@@ -168,7 +245,7 @@ while True:
 
             # toggle note taking button if clicked
             if note_taking_button.collidepoint(pos[0], pos[1]):
-                note_taking = not note_taking
+                game.set_solved(not game.is_solved())
 
                 # deselect any cell
                 if row != -1:
@@ -188,8 +265,7 @@ while True:
         
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                game.set_solved(not game.is_solved())
-                draw_board(game.is_solved())
+                note_taking = not note_taking
 
             # write in the cell in non notetaking mode
             if (note_taking is False) and (board[row][col].is_fixed() is False) and (game.is_solved() is False):
@@ -226,7 +302,8 @@ while True:
 
                 if game.find_next_empty_cell(0,0,False) == (-1,-1):
                     if game.is_won():
-                        screen.fill((0, 100, 0))
+                        screen.fill((173, 255, 47))
+                        draw_board()
                     else:
                         caption_font = pygame.font.SysFont('Calibri', 28, True, False)
                         text = caption_font.render('Something is wrong, try again', True, (0, 0, 0), (255, 255, 255))

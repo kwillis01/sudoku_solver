@@ -121,6 +121,9 @@ class Board:
                 
                 elements_used.add(rand_num)
                 self.board[i][col + j].set_correct_num(rand_num)
+                self.__row_list[i].add(rand_num)
+                self.__col_list[col + j].add(rand_num)
+                self.__grid_list[grid].add(rand_num)
 
             if i % 3 == 2:
                 col += 3
