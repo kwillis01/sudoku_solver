@@ -16,6 +16,7 @@ def draw_starting_page():
     easy_button = pygame.draw.rect(screen, (105, 105, 105), (225, height // 4 * 2, 200, 50), 0)
     medium_button = pygame.draw.rect(screen, (105, 105, 105), (225, (height // 4 * 2) + 75, 200, 50), 0)
     hard_button = pygame.draw.rect(screen, (105, 105, 105), (225, (height // 4 * 2) + 150, 200, 50), 0)
+    controls_button = pygame.draw.rect(screen, (105, 105, 105), (225, (height // 4 * 2) + 175, 200, 50), 0)
 
     button_font = pygame.font.SysFont('Calibri', 36, False, False)
     easy = button_font.render('Easy', True, (255, 255, 255), (105, 105, 105))
@@ -33,11 +34,11 @@ def draw_starting_page():
     hard_rect.center = (width // 2, (height // 4 * 2) + 175)
     screen.blit(hard, hard_rect)
 
-    title_font = pygame.font.SysFont('Calibri', 24, True, False)
-    hard = button_font.render('Controls', True, (0, 0, 0), (255, 255, 255))
-    hard_rect = hard.get_rect()
-    hard_rect.center = (width // 2, (height // 4 * 2) + 300)
-    screen.blit(hard, hard_rect)
+    caption_font = pygame.font.SysFont('Calibri', 32, False, False)
+    text = caption_font.render('Controls', True, (255, 255, 255), (105, 105, 105))
+    textRect = text.get_rect()
+    textRect.center = (width // 2, (height // 4 * 2) + 250)
+    screen.blit(text, textRect)
 
     while True:
         for event in pygame.event.get():
@@ -64,7 +65,6 @@ def draw_starting_page():
 def draw_board(solved):
     draw_grid()
     draw_solved_button()
-    draw_captions()
     draw_cell_numbers(solved)
 
 def draw_grid():
@@ -92,29 +92,10 @@ def draw_grid():
             pygame.draw.line(screen, (0, 0, 0), (0, y), (width, y))        
 
 def draw_solved_button():
-    # make the button different colors depending on if note_taking is enabled or not
-    if game.is_solved:
-        solved_button = pygame.draw.rect(screen, (192, 192, 192), (100, 490, 35, 35), 0)
-    else:
-        solved_button = pygame.draw.rect(screen, (105, 105, 105), (100, 490, 35, 35), 0)
+    
+    solved_button = pygame.draw.rect(screen, (192, 192, 192), (width // 2 - 75, 490, 150, 50), 0)
 
     return solved_button
-
-
-
-def draw_captions():
-    # make directions telling user what the button is for
-    caption_font = pygame.font.SysFont('Calibri', 28, False, False)
-    text = caption_font.render('Press Button for Solved Board', True, (0, 0, 0), (255, 255, 255))
-    textRect = text.get_rect()
-    textRect.center = (350, 510)
-    screen.blit(text, textRect)
-
-    caption_font = pygame.font.SysFont('Calibri', 24, False, False)
-    text = caption_font.render('Press Space to Show Solved Puzzle', True, (0, 0, 0), (255, 255, 255))
-    textRect = text.get_rect()
-    textRect.center = (318, 540)
-    screen.blit(text, textRect)
 
 def draw_cell_numbers(solved):
     # go through each cell to determine what to draw
@@ -267,6 +248,38 @@ while True:
             if event.key == pygame.K_SPACE:
                 note_taking = not note_taking
 
+            elif event.key == pygame.K_UP:
+                if row > 0:
+                    board[row][col].set_selected(False)
+
+                    row -= 1
+                    board[row][col].set_selected(True)
+                    draw_board(game.is_solved())
+
+            elif event.key == pygame.K_DOWN:
+                if row < 8:
+                    board[row][col].set_selected(False)
+
+                    row += 1
+                    board[row][col].set_selected(True)
+                    draw_board(game.is_solved())
+
+            elif event.key == pygame.K_LEFT:
+                if col > 0:
+                    board[row][col].set_selected(False)
+
+                    col -= 1
+                    board[row][col].set_selected(True)
+                    draw_board(game.is_solved())
+
+            elif event.key == pygame.K_RIGHT:
+                if col < 8:
+                    board[row][col].set_selected(False)
+
+                    col += 1
+                    board[row][col].set_selected(True)
+                    draw_board(game.is_solved())
+
             # write in the cell in non notetaking mode
             if (note_taking is False) and (board[row][col].is_fixed() is False) and (game.is_solved() is False):
                 if event.key == pygame.K_1:
@@ -303,7 +316,7 @@ while True:
                 if game.find_next_empty_cell(0,0,False) == (-1,-1):
                     if game.is_won():
                         screen.fill((173, 255, 47))
-                        draw_board()
+                        draw_board(True)
                     else:
                         caption_font = pygame.font.SysFont('Calibri', 28, True, False)
                         text = caption_font.render('Something is wrong, try again', True, (0, 0, 0), (255, 255, 255))
