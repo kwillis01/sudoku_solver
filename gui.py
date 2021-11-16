@@ -8,16 +8,18 @@ pygame.init()
 def draw_starting_page():
     title_font = pygame.font.SysFont('Calibri', 56, False, False)
 
+    # title 
     title = title_font.render('Sudoku', True, (0, 0, 0), (255, 255, 255))
     title_rect = title.get_rect()
     title_rect.center = (width // 2, height // 4)
     screen.blit(title, title_rect)
 
+    # button blocks
     easy_button = pygame.draw.rect(screen, (105, 105, 105), (225, height // 4 * 2, 200, 50), 0)
     medium_button = pygame.draw.rect(screen, (105, 105, 105), (225, (height // 4 * 2) + 75, 200, 50), 0)
     hard_button = pygame.draw.rect(screen, (105, 105, 105), (225, (height // 4 * 2) + 150, 200, 50), 0)
-    controls_button = pygame.draw.rect(screen, (105, 105, 105), (225, (height // 4 * 2) + 175, 200, 50), 0)
 
+    # buttons
     button_font = pygame.font.SysFont('Calibri', 36, False, False)
     easy = button_font.render('Easy', True, (255, 255, 255), (105, 105, 105))
     easy_rect = easy.get_rect()
@@ -34,12 +36,8 @@ def draw_starting_page():
     hard_rect.center = (width // 2, (height // 4 * 2) + 175)
     screen.blit(hard, hard_rect)
 
-    caption_font = pygame.font.SysFont('Calibri', 32, False, False)
-    text = caption_font.render('Controls', True, (255, 255, 255), (105, 105, 105))
-    textRect = text.get_rect()
-    textRect.center = (width // 2, (height // 4 * 2) + 250)
-    screen.blit(text, textRect)
 
+    # determines what to do when each button is clicked
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -57,10 +55,6 @@ def draw_starting_page():
 
         pygame.display.update()
 
-
-        
-
-    
 
 def draw_board(solved):
     draw_grid()
@@ -93,7 +87,13 @@ def draw_grid():
 
 def draw_solved_button():
     
-    solved_button = pygame.draw.rect(screen, (192, 192, 192), (width // 2 - 75, 490, 150, 50), 0)
+    solved_button = pygame.draw.rect(screen, (105, 105, 105), (width // 2 - 75, 490, 150, 50), 0)
+
+    button_font = pygame.font.SysFont('Calibri', 36, False, False)
+    solve = button_font.render('Solve', True, (255, 255, 255), (105, 105, 105))
+    solve_rect = solve.get_rect()
+    solve_rect.center = (width // 2, (height // 4 * 2) + 275)
+    screen.blit(solve, solve_rect)
 
     return solved_button
 
@@ -122,12 +122,15 @@ def draw_cell_numbers(solved):
                 else:
                     pygame.draw.rect(screen, (192, 192, 192), (x + 1, y + 1, (width // 9) - 1, (height //9) - 1), 0)
                 draw_cell_num(i, j, board[i][j].get_correct_num(), (192, 192, 192))
+
             # if the cell is not empty
             elif solved:
                 draw_cell_num(i, j, board[i][j].get_correct_num(), (255, 255, 255))
+
             elif board[i][j].get_cell_num() != 0:
                 #if the cell number is given at the start of the game then make the cell background gray
                 draw_cell_num(i, j, board[i][j].get_cell_num(), (255, 255, 255))
+
             # draw the note taking numbers if there is nothing in the cell and there are numbers to draw
             elif len(board[i][j].get_possible_nums()) > 0:
                 for num in board[i][j].get_possible_nums():
@@ -206,13 +209,14 @@ screen = pygame.display.set_mode((640, 560))
 screen.fill((255, 255, 255))
 font = pygame.font.SysFont('Calibri', 48, False, False)
 note_taking = False
-note_taking_button = pygame.Rect(100, 500, 35, 35)
+
 # make the game
 row = -1
 col = -1
 
 game = draw_starting_page()
 board = game.get_board()
+solve_button = pygame.draw.rect(screen, (192, 192, 192), (width // 2 - 75, 490, 150, 50), 0)
 draw_board(False)
 
 while True:
@@ -225,7 +229,7 @@ while True:
             pos = pygame.mouse.get_pos()
 
             # toggle note taking button if clicked
-            if note_taking_button.collidepoint(pos[0], pos[1]):
+            if solve_button.collidepoint(pos[0], pos[1]):
                 game.set_solved(not game.is_solved())
 
                 # deselect any cell

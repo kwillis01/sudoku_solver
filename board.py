@@ -276,6 +276,12 @@ class Board:
             row = row + 1
             col = 0
 
+    def test_solve_board(self):
+        for arr in self.board:
+            for element in arr:
+                element.set_cell_num(element.get_correct_num())
+
+
 class Cell:
     # default constructor
     def __init__(self):
